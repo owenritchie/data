@@ -20,9 +20,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Create .env file
         run: |
@@ -56,13 +54,9 @@ jobs:
       - name: Run ingestion pipeline
         run: python ingestion/oc_transpo/oc_transpo_pipeline.py
 
-      - name: Run dbt staging models
+      - name: Run dbt models
         working-directory: ./dbt_pipelines
-        run: dbt run --select staging --static-analysis off
-
-      - name: Run dbt presentation models
-        working-directory: ./dbt_pipelines
-        run: dbt run --select presentation --static-analysis off
+        run: dbt run
 
       - name: Pipeline completed
         run: echo "Active vehicles pipeline run completed successfully!"
