@@ -27,7 +27,7 @@ jobs:
       - name: Create dlt secrets file
         run: |
           mkdir -p .dlt
-          cat > .dlt/secrets.toml << EOF
+          cat <<'EOF' > .dlt/secrets.toml
           [sources.oc_transpo]
           api_key = "${{ secrets.OC_TRANSPO_API_KEY }}"
 
@@ -38,11 +38,12 @@ jobs:
           host = "${{ secrets.POSTGRES_HOST }}"
           port = ${{ secrets.POSTGRES_PORT }}
           EOF
+          sed -i 's/^          //' .dlt/secrets.toml
 
       - name: Create dbt profiles file
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << EOF
+          cat <<'EOF' > ~/.dbt/profiles.yml
           dbt_pipelines:
             outputs:
               dev:
@@ -56,6 +57,7 @@ jobs:
                 threads: 1
             target: dev
           EOF
+          sed -i 's/^          //' ~/.dbt/profiles.yml
 
       - name: Run dlt pipeline
         run: python .dlt/pipelines/oc_transpo_pipeline.py
