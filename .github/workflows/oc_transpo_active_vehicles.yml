@@ -2,7 +2,7 @@ name: OC Transpo Active Vehicles pipeline
 
 on:
   schedule:
-    - cron: "*/20 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
