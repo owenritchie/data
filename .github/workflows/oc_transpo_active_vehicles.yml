@@ -27,21 +27,24 @@ jobs:
       - name: Create dlt secrets file
         run: |
           mkdir -p .dlt
-          python3 -c "
+          python3 << 'PYTHON'
           import os
-          content = f'''[sources.oc_transpo]
-          api_key = \"{os.environ['OC_TRANSPO_API_KEY']}\"
+          content = f"""[sources.oc_transpo]
+          api_key = "{os.environ['OC_TRANSPO_API_KEY']}"
 
           [destination.postgres.credentials]
-          database = \"{os.environ['POSTGRES_DATABASE']}\"
-          username = \"{os.environ['POSTGRES_USERNAME']}\"
-          password = \"{os.environ['POSTGRES_PASSWORD']}\"
-          host = \"{os.environ['POSTGRES_HOST']}\"
+          database = "{os.environ['POSTGRES_DATABASE']}"
+          username = "{os.environ['POSTGRES_USERNAME']}"
+          password = "{os.environ['POSTGRES_PASSWORD']}"
+          host = "{os.environ['POSTGRES_HOST']}"
           port = {os.environ['POSTGRES_PORT']}
-          '''
+          """
+          # Strip leading whitespace from each line
+          lines = [line.lstrip() for line in content.split('\n')]
+          clean_content = '\n'.join(lines)
           with open('.dlt/secrets.toml', 'w') as f:
-              f.write(content)
-          "
+              f.write(clean_content)
+          PYTHON
         env:
           OC_TRANSPO_API_KEY: ${{ secrets.OC_TRANSPO_API_KEY }}
           POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
@@ -53,9 +56,9 @@ jobs:
       - name: Create dbt profiles file
         run: |
           mkdir -p ~/.dbt
-          python3 -c "
+          python3 << 'PYTHON'
           import os
-          content = f'''dbt_pipelines:
+          content = f"""dbt_pipelines:
             outputs:
               dev:
                 type: postgres
@@ -67,10 +70,19 @@ jobs:
                 schema: public
                 threads: 1
             target: dev
-          '''
+          """
+          # Strip leading whitespace from first line only, preserve YAML indentation
+          lines = content.split('\n')
+          if lines[0].strip() == '':
+              lines = lines[1:]
+          if lines[-1].strip() == '':
+              lines = lines[:-1]
+          # Remove common leading whitespace
+          import textwrap
+          clean_content = textwrap.dedent('\n'.join(lines))
           with open(os.path.expanduser('~/.dbt/profiles.yml'), 'w') as f:
-              f.write(content)
-          "
+              f.write(clean_content)
+          PYTHON
         env:
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
