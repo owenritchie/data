@@ -1,19 +1,12 @@
 # ignore secrets and environment files
 .env
-secrets.toml
-*.secrets.toml
-# ignore dlt artifacts (if used)
-.dlt/profile-name
-.dlt/.var
-.dlt/secrets.toml
-_local
-# ignore basic python artifacts
-**/__pycache__/
-**/*.py[cod]
-**/*$py.class
-# ignore duckdb
-*.duckdb
-*.wal
+
+# python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
 # dbt artifacts
 dbt_pipelines/target/
