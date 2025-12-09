@@ -1,0 +1,72 @@
+name: OC Transpo Active Vehicles pipeline
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create dlt secrets file
+        run: |
+          mkdir -p .dlt
+          cat > .dlt/secrets.toml << EOF
+          [sources.oc_transpo]
+          api_key = "${{ secrets.OC_TRANSPO_API_KEY }}"
+
+          [destination.postgres.credentials]
+          database = "${{ secrets.POSTGRES_DATABASE }}"
+          username = "${{ secrets.POSTGRES_USERNAME }}"
+          password = "${{ secrets.POSTGRES_PASSWORD }}"
+          host = "${{ secrets.POSTGRES_HOST }}"
+          port = ${{ secrets.POSTGRES_PORT }}
+          EOF
+
+      - name: Create dbt profiles file
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          dbt_pipelines:
+            outputs:
+              dev:
+                type: postgres
+                host: ${{ secrets.POSTGRES_HOST }}
+                user: ${{ secrets.POSTGRES_USERNAME }}
+                pass: ${{ secrets.POSTGRES_PASSWORD }}
+                port: ${{ secrets.POSTGRES_PORT }}
+                dbname: ${{ secrets.POSTGRES_DATABASE }}
+                schema: public
+                threads: 1
+            target: dev
+          EOF
+
+      - name: Run dlt pipeline
+        run: python .dlt/pipelines/oc_transpo_pipeline.py
+
+      - name: Run dbt staging models
+        working-directory: ./dbt_pipelines
+        run: dbt run --select staging --static-analysis off
+
+      - name: Run dbt presentation models
+        working-directory: ./dbt_pipelines
+        run: dbt run --select presentation --static-analysis off
+
+      - name: Pipeline completed
+        run: echo "Active vehicles pipeline run completed successfully!"

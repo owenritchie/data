@@ -1,0 +1,15 @@
+# put your configuration values here
+
+[runtime]
+log_level="WARNING" 
+dlthub_telemetry = false
+
+[destination.postgres]
+create_indexes = false
+
+[normalize]
+_dlt_loads_table = false
+_dlt_version_table = false
+
+[schema]
+not_null_fields = []

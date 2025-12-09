@@ -1,0 +1,26 @@
+# ignore secrets, virtual environments and typical python compilation artifacts
+secrets.toml
+*.secrets.toml
+# ignore pinned profile name
+.dlt/profile-name
+# ignore default working dir
+.dlt/.var
+# ignore default local dir (loaded data)
+_local
+# ignore basic python artifacts
+.env
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+# ignore duckdb
+*.duckdb
+*.wal
+
+# dbt artifacts
+dbt_pipelines/target/
+dbt_pipelines/dbt_packages/
+dbt_pipelines/logs/
+dbt_pipelines/dbt_internal_packages/
+
+# local data
+logs/
