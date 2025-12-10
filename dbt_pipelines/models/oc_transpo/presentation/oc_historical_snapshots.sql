@@ -1,16 +1,6 @@
 {{ config(
     materialized='incremental',
-    unique_key='snapshot_timestamp',
-    pre_hook="CREATE TABLE IF NOT EXISTS {{ this }} (
-        snapshot_timestamp TIMESTAMP PRIMARY KEY,
-        active_buses INTEGER NOT NULL,
-        active_routes INTEGER NOT NULL,
-        average_speed DECIMAL(6, 2),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )",
-    indexes=[
-        {'columns': ['snapshot_timestamp'], 'unique': True}
-    ]
+    unique_key='snapshot_timestamp'
 ) }}
 
 with latest_snapshot as (
