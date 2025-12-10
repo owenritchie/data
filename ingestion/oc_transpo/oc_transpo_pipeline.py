@@ -3,7 +3,7 @@ import os
 import json
 import pandas as pd
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 load_dotenv()
 
@@ -15,7 +15,7 @@ DB_PORT = os.getenv('POSTGRES_PORT')
 DB_NAME = os.getenv('POSTGRES_NAME')
 
 if not API_KEY:
-    raise ValueError ("API Key is not an environmental variable.")
+    raise ValueError ("API Key is not set properly.")
 
 
 url = "https://nextrip-public-api.azure-api.net/octranspo/gtfs-rt-vp/beta/v1/VehiclePositions"
@@ -52,6 +52,11 @@ if response.status_code == 200:
     try:
         connection_string = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
         engine = create_engine(connection_string)
+
+        with engine.connect() as conn:
+            conn.execute(text("DROP TABLE IF EXISTS raw_active_vehicles CASCADE"))
+            conn.commit()
+
         df.to_sql('raw_active_vehicles', engine, if_exists='replace', index=False)
         print("Successfully updated data to database.")
     except Exception as e:
