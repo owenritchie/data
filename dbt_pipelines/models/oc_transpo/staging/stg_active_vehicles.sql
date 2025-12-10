@@ -9,7 +9,7 @@ SELECT
     CAST("Vehicle.Position.Latitude" AS DECIMAL(10, 8)) AS latitude,
     CAST("Vehicle.Position.Longitude" AS DECIMAL(11, 8)) AS longitude,
     CAST("Vehicle.Position.Bearing" AS DECIMAL(5, 2)) AS bearing,
-    CAST("Vehicle.Position.Speed" AS DECIMAL(6, 2)) AS speed,
+    CAST("Vehicle.Position.Speed" AS DECIMAL(6, 2)) * CAST(3.6 AS DECIMAL(3,1)) AS speed,
     CAST("Vehicle.CurrentStatus" AS INTEGER) AS current_status,
     "Vehicle.Timestamp" AS last_update_timestamp
 FROM {{ source('raw', 'raw_active_vehicles') }}
