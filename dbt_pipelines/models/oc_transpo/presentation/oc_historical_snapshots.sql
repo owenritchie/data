@@ -9,7 +9,8 @@ with latest_snapshot as (
         COUNT(DISTINCT vehicle_id) as active_buses,
         COUNT(DISTINCT route_id) as active_routes,
         AVG(speed) as average_speed,
-        COUNT(DISTINCT vehicle_id) FILTER (WHERE speed = 0) as stopped_vehicles
+        COUNT(DISTINCT vehicle_id) FILTER (WHERE speed = 0) as stopped_vehicles,
+        COUNT(DISTINCT vehicle_id) FILTER (WHERE speed > 50) as fast_vehicles
     from {{ ref('fct_active_vehicles') }}
 )
 
