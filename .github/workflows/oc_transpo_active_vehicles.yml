@@ -51,8 +51,11 @@ jobs:
             target: dev
           EOF
 
-      - name: Run ingestion pipeline
+      - name: Run OC Transpo ingestion pipeline
         run: python ingestion/oc_transpo/oc_transpo_pipeline.py
+
+      - name: Run Weather ingestion pipeline
+        run: python ingestion/open_meteo/raw_current_weather.py
 
       - name: Run dbt models
         working-directory: ./dbt_pipelines
