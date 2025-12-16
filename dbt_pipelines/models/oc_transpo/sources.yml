@@ -6,3 +6,5 @@ sources:
     tables:
       - name: raw_active_vehicles
         description: Raw vehicle position data from OC Transpo API
+      - name: raw_current_weather
+        description: Raw current weather data from Open-Meteo API
