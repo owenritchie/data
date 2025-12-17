@@ -2,7 +2,8 @@
 
 SELECT
     CAST("Vehicle.Vehicle.Id" AS INTEGER) AS vehicle_id,
-    CAST("Vehicle.Trip.RouteId" AS VARCHAR) || '-' || CAST("Vehicle.Trip.DirectionId" AS VARCHAR) AS route_id,
+    CAST("Vehicle.Trip.RouteId" AS VARCHAR) AS route_id,
+    CAST("Vehicle.Trip.DirectionId" AS VARCHAR) AS trip_direction,
     "Vehicle.Trip.TripId" AS trip_id,
     "Vehicle.Trip.StartTime" AS scheduled_start_time,
     "Vehicle.Trip.StartDate" AS scheduled_start_date,

@@ -12,6 +12,7 @@ SELECT
     vehicle_id,
     route_id,
     trip_id,
+    trip_direction,
     scheduled_start_time,
     scheduled_start_date,
     latitude,
