@@ -42,8 +42,12 @@ if response.status_code == 200:
             return json.dumps(cell)
         return cell
 
-    df = df.applymap(convert_cell)
-
+    # Try applymap first; if not available, fall back to applying per Series.
+    try:
+        df = df.applymap(convert_cell)
+    except AttributeError:
+        # fallback for environments/pandas versions without DataFrame.applymap
+        df = df.apply(lambda col: col.apply(convert_cell))
 
     print(df.head())
     print(f"Success! Retrieved {len(df)} trip updates from the OC Transpo Endpoint.")
@@ -62,5 +66,6 @@ if response.status_code == 200:
     except Exception as e:
         print(f"Failed to write to database: {e}")
 else:
-    print(f"Request failed. Error: {requests.status_codes}")
+    # use response.status_code (not requests.status_codes)
+    print(f"Request failed. Error: {response.status_code}")
     print(response.text)
