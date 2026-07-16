@@ -1,6 +1,9 @@
 # ignore secrets and environment files
 .env
 
+# local editor / Claude Code config
+.claude/
+
 # python artifacts
 __pycache__/
 *.py[cod]
@@ -9,10 +12,10 @@ __pycache__/
 .Python
 
 # dbt artifacts
-dbt_pipelines/target/
-dbt_pipelines/dbt_packages/
-dbt_pipelines/logs/
-dbt_pipelines/dbt_internal_packages/
+dbt/*/target/
+dbt/*/dbt_packages/
+dbt/*/logs/
+dbt/*/dbt_internal_packages/
 
 # local data
 logs/

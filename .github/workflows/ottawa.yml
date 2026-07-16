@@ -1,0 +1,65 @@
+name: ottawa
+
+on:
+  schedule:
+    - cron: "0 */1 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          OC_TRANSPO_API_KEY=${{ secrets.OC_TRANSPO_API_KEY }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USERNAME }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+          POSTGRES_NAME=${{ secrets.POSTGRES_DATABASE }}
+          EOF
+
+      - name: Create dbt profiles file
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          ottawa:
+            outputs:
+              dev:
+                type: postgres
+                host: ${{ secrets.POSTGRES_HOST }}
+                user: ${{ secrets.POSTGRES_USERNAME }}
+                pass: ${{ secrets.POSTGRES_PASSWORD }}
+                port: ${{ secrets.POSTGRES_PORT }}
+                dbname: ${{ secrets.POSTGRES_DATABASE }}
+                schema: public
+                threads: 1
+            target: dev
+          EOF
+
+      - name: Run OC Transpo ingestion pipeline
+        run: python ingestion/oc_transpo/oc_transpo_pipeline.py
+
+      - name: Run Weather ingestion pipeline
+        run: python ingestion/open_meteo/raw_current_weather.py
+
+      - name: Run dbt models
+        working-directory: ./dbt/ottawa
+        run: dbt run
+
+      - name: Pipeline completed
+        run: echo "Active vehicles pipeline run completed successfully!"

@@ -1,7 +1,7 @@
-name: "dbt_pipelines"
+name: "spotify"
 version: "1.0.0"
 
-profile: "dbt_pipelines"
+profile: "spotify"
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -15,12 +15,10 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  dbt_pipelines:
+  spotify:
     +static_analysis: off
-    # OC Transpo pipeline
-    oc_transpo:
-      staging:
-        +materialized: view
+    staging:
+      +materialized: view
 
-      presentation:
-        +materialized: table
+    presentation:
+      +materialized: table

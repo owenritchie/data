@@ -1,8 +1,8 @@
-name: OC Transpo Active Vehicles pipeline
+name: spotify
 
 on:
   schedule:
-    - cron: "0 */1 * * *"
+    - cron: "0 */12 * * *"
   workflow_dispatch:
 
 jobs:
@@ -25,7 +25,9 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env << EOF
-          OC_TRANSPO_API_KEY=${{ secrets.OC_TRANSPO_API_KEY }}
+          SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN }}
           POSTGRES_USER=${{ secrets.POSTGRES_USERNAME }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
@@ -37,7 +39,7 @@ jobs:
         run: |
           mkdir -p ~/.dbt
           cat > ~/.dbt/profiles.yml << EOF
-          dbt_pipelines:
+          spotify:
             outputs:
               dev:
                 type: postgres
@@ -51,15 +53,12 @@ jobs:
             target: dev
           EOF
 
-      - name: Run OC Transpo ingestion pipeline
-        run: python ingestion/oc_transpo/oc_transpo_pipeline.py
-
-      - name: Run Weather ingestion pipeline
-        run: python ingestion/open_meteo/raw_current_weather.py
+      - name: Run Spotify ingestion pipeline
+        run: python ingestion/spotify/raw_spotify_plays.py
 
       - name: Run dbt models
-        working-directory: ./dbt_pipelines
+        working-directory: ./dbt/spotify
         run: dbt run
 
       - name: Pipeline completed
-        run: echo "Active vehicles pipeline run completed successfully!"
+        run: echo "Spotify recently-played pipeline run completed successfully!"
