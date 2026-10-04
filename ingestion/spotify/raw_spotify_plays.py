@@ -91,21 +91,18 @@ TABLE_NAME = "raw_spotify_plays"
 # played_at is unique per play (you can't play two tracks at the same instant), 
 # so we insert only plays that aren't already stored. (Append)
 
-try:
-    connection_string = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    engine = create_engine(connection_string)
+connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(connection_string)
 
-    if inspect(engine).has_table(TABLE_NAME):
-        existing = pd.read_sql(f"SELECT played_at FROM {TABLE_NAME}", engine)
-        new_df = df[~df["played_at"].isin(existing["played_at"])]
-    else:
-        new_df = df
+if inspect(engine).has_table(TABLE_NAME):
+    existing = pd.read_sql(f"SELECT played_at FROM {TABLE_NAME}", engine)
+    new_df = df[~df["played_at"].isin(existing["played_at"])]
+else:
+    new_df = df
 
-    if len(new_df) > 0:
-        new_df.to_sql(TABLE_NAME, engine, if_exists="append", index=False)
-        print(f"Inserted {len(new_df)} new plays into {TABLE_NAME} "
-              f"({len(df) - len(new_df)} already stored, skipped).")
-    else:
-        print(f"No new plays — all {len(df)} pulled tracks are already in {TABLE_NAME}.")
-except Exception as e:
-    print(f"Failed to write to database: {e}")
+if len(new_df) > 0:
+    new_df.to_sql(TABLE_NAME, engine, if_exists="append", index=False)
+    print(f"Inserted {len(new_df)} new plays into {TABLE_NAME} "
+          f"({len(df) - len(new_df)} already stored, skipped).")
+else:
+    print(f"No new plays — all {len(df)} pulled tracks are already in {TABLE_NAME}.")
