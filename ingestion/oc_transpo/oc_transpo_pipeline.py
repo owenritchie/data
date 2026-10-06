@@ -53,18 +53,15 @@ if response.status_code == 200:
     print(f"Success! Retrieved {len(df)} trip updates from the OC Transpo Endpoint.")
 
     # Write to Database
-    try:
-        connection_string = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        engine = create_engine(connection_string)
+    connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    engine = create_engine(connection_string)
 
-        with engine.connect() as conn:
-            conn.execute(text("DROP TABLE IF EXISTS raw_active_vehicles CASCADE"))
-            conn.commit()
+    with engine.connect() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS raw_active_vehicles CASCADE"))
+        conn.commit()
 
-        df.to_sql('raw_active_vehicles', engine, if_exists='replace', index=False)
-        print("Successfully updated data to database.")
-    except Exception as e:
-        print(f"Failed to write to database: {e}")
+    df.to_sql('raw_active_vehicles', engine, if_exists='replace', index=False)
+    print("Successfully updated data to database.")
 else:
     # use response.status_code (not requests.status_codes)
     print(f"Request failed. Error: {response.status_code}")
